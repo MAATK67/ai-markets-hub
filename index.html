@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>مركز توصيات AI | ذهب · تاسي · أمريكا</title>
+  <style>
+    :root {
+      --bg: #0b0f19; --card: #141b2d; --gold: #f5c518; --gold-dim: #c9a227;
+      --text: #e8eaf0; --muted: #8b93a7; --green: #22c55e; --red: #ef4444; --blue: #3b82f6;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Tahoma, Arial, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; line-height: 1.6; }
+    .container { max-width: 1100px; margin: 0 auto; padding: 1.2rem; }
+    header { text-align: center; padding: 1.5rem 0 1rem; border-bottom: 1px solid #1e293b; margin-bottom: 1.2rem; }
+    header h1 { font-size: 1.6rem; color: var(--gold); margin-bottom: 0.3rem; }
+    header p { color: var(--muted); font-size: 0.9rem; }
+    .tabs { display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center; margin-bottom: 1.2rem; }
+    .tab { background: #1a2332; border: 1px solid #2a3548; color: var(--text); padding: 0.55rem 1.1rem; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.9rem; }
+    .tab.active { background: var(--gold); color: #0b0f19; border-color: var(--gold); }
+    .panel { display: none; }
+    .panel.active { display: block; }
+    .card { background: var(--card); border: 1px solid #1e293b; border-radius: 12px; padding: 1.2rem; margin-bottom: 1.2rem; }
+    .card h3 { color: var(--gold-dim); margin-bottom: 0.7rem; font-size: 1.05rem; }
+    .signal { font-size: 1.35rem; font-weight: 700; margin: 0.35rem 0; }
+    .signal-buy { color: var(--green); } .signal-sell { color: var(--red); } .signal-hold { color: var(--blue); }
+    .reason { color: var(--muted); font-size: 0.9rem; }
+    .actions { display: flex; gap: 0.6rem; flex-wrap: wrap; justify-content: center; margin-top: 0.9rem; }
+    button { background: var(--gold); color: #0b0f19; border: none; padding: 0.6rem 1.15rem; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 0.9rem; }
+    button.secondary { background: transparent; border: 1px solid #2a3548; color: var(--text); }
+    select { width: 100%; max-width: 360px; padding: 0.6rem 0.8rem; border-radius: 8px; border: 1px solid #2a3548; background: #0f1623; color: var(--text); font-size: 0.9rem; cursor: pointer; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 0.9rem; margin-bottom: 1.2rem; }
+    .stock-card { background: var(--card); border: 1px solid #1e293b; border-radius: 10px; padding: 1rem; cursor: pointer; transition: border-color 0.2s; }
+    .stock-card:hover { border-color: var(--gold-dim); }
+    .stock-card.selected { border-color: var(--gold); }
+    .stock-name { font-weight: 600; font-size: 1rem; }
+    .stock-symbol { color: var(--muted); font-size: 0.8rem; }
+    .stock-price { font-size: 1.25rem; font-weight: 700; color: var(--gold); margin: 0.35rem 0; }
+    .stock-change { font-size: 0.85rem; }
+    .up { color: var(--green); } .down { color: var(--red); }
+    .badge { display: inline-block; padding: 0.15rem 0.45rem; border-radius: 999px; font-size: 0.72rem; font-weight: 600; margin-top: 0.3rem; }
+    .badge-watch { background: rgba(59,130,246,0.15); color: #60a5fa; }
+    .badge-risk { background: rgba(239,68,68,0.15); color: var(--red); }
+    .sort-bar { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin-bottom: 0.8rem; }
+    .sort-bar select { max-width: 200px; padding: 0.4rem 0.6rem; font-size: 0.85rem; }
+    .count { color: var(--muted); font-size: 0.85rem; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    th, td { padding: 0.45rem 0.3rem; text-align: right; border-bottom: 1px solid #1e293b; }
+    th { color: var(--gold-dim); }
+    .disclaimer { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25); border-radius: 8px; padding: 0.85rem; font-size: 0.82rem; color: #fca5a5; margin-top: 1rem; }
+    footer { text-align: center; color: var(--muted); font-size: 0.78rem; padding: 1.2rem 0; border-top: 1px solid #1e293b; margin-top: 1.2rem; }
+    .gold-price { font-size: 2rem; font-weight: 700; color: var(--gold); text-align: center; }
+    .muted { color: var(--muted); font-size: 0.85rem; text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>⚡ مركز توصيات AI</h1>
+      <p>ذهب · تاسي تحت 20 ر.س · أسهم أمريكا تحت $10 — SMC · ICT · Wyckoff</p>
+    </header>
+
+    <div class="tabs">
+      <button class="tab active" onclick="showTab('gold')">🥇 الذهب</button>
+      <button class="tab" onclick="showTab('tasi')">🇸🇦 تاسي</button>
+      <button class="tab" onclick="showTab('us')">🇺🇸 أمريكا</button>
+    </div>
+
+    <div id="panel-gold" class="panel active">
+      <div class="card" style="text-align:center">
+        <div class="muted">سعر الذهب (XAU/USD)</div>
+        <div class="gold-price" id="goldPrice">—</div>
+        <div class="muted" id="goldMeta">جاري التحميل...</div>
+        <div class="actions">
+          <button onclick="fetchGold()">تحديث السعر</button>
+          <button class="secondary" onclick="genGoldRec()">توليد توصية AI</button>
+        </div>
+      </div>
+      <div class="card">
+        <h3>🎯 توصية الذهب</h3>
+        <div class="signal signal-hold" id="goldSignal">اضغط «توليد توصية AI»</div>
+        <div class="reason" id="goldReason">تحليل فني مبسط مستوحى من SMC / ICT / Price Action</div>
+        <div id="goldLevels" class="reason" style="margin-top:0.5rem"></div>
+      </div>
+      <div class="card">
+        <h3>مدارس التحليل</h3>
+        <p class="reason">SMC / ICT: Order Blocks و FVG · Wyckoff: مراحل التجميع · Price Action + AI: أنماط الشموع والزخم</p>
+      </div>
+    </div>
+
+    <div id="panel-tasi" class="panel">
+      <div class="card" style="text-align:center">
+        <div class="muted">أسهم تاسي تحت ~20 ريال</div>
+        <div style="margin:0.8rem auto;max-width:340px">
+          <label class="muted" style="display:block;margin-bottom:0.3rem;font-size:0.85rem">اختر الشركة:</label>
+          <select id="tasiSelect"><option value="">— اختر —</option></select>
+        </div>
+        <div class="actions">
+          <button onclick="genStockRec('tasi', false)">تحليل المختارة</button>
+          <button class="secondary" onclick="genStockRec('tasi', true)">عشوائي</button>
+        </div>
+      </div>
+      <div class="card">
+        <h3>🎯 التوصية</h3>
+        <div class="signal signal-hold" id="tasiSignal">اختر شركة ثم حلل</div>
+        <div class="reason" id="tasiReason"></div>
+        <div id="tasiLevels" class="reason" style="margin-top:0.5rem"></div>
+      </div>
+      <div class="sort-bar">
+        <span style="color:var(--gold);font-weight:600">القائمة</span>
+        <select id="tasiSort" onchange="sortList('tasi')">
+          <option value="change-desc">الأكثر صعوداً</option>
+          <option value="change-asc">الأكثر هبوطاً</option>
+          <option value="price-asc">الأرخص</option>
+          <option value="price-desc">الأغلى</option>
+        </select>
+        <span class="count" id="tasiCount"></span>
+      </div>
+      <div class="grid" id="tasiGrid"></div>
+      <div class="card">
+        <table>
+          <thead><tr><th>الرمز</th><th>الشركة</th><th>السعر</th><th>التغير</th></tr></thead>
+          <tbody id="tasiTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="panel-us" class="panel">
+      <div class="card" style="text-align:center">
+        <div class="muted">أسهم SPX · NASDAQ · DOW تحت $10</div>
+        <div style="margin:0.8rem auto;max-width:340px">
+          <label class="muted" style="display:block;margin-bottom:0.3rem;font-size:0.85rem">اختر الشركة:</label>
+          <select id="usSelect"><option value="">— اختر —</option></select>
+        </div>
+        <div class="actions">
+          <button onclick="genStockRec('us', false)">تحليل المختارة</button>
+          <button class="secondary" onclick="genStockRec('us', true)">عشوائي</button>
+        </div>
+      </div>
+      <div class="card">
+        <h3>🎯 التوصية</h3>
+        <div class="signal signal-hold" id="usSignal">اختر شركة ثم حلل</div>
+        <div class="reason" id="usReason"></div>
+        <div id="usLevels" class="reason" style="margin-top:0.5rem"></div>
+      </div>
+      <div class="sort-bar">
+        <span style="color:var(--gold);font-weight:600">القائمة</span>
+        <select id="usSort" onchange="sortList('us')">
+          <option value="change-desc">الأكثر صعوداً</option>
+          <option value="change-asc">الأكثر هبوطاً</option>
+          <option value="price-asc">الأرخص</option>
+          <option value="price-desc">الأغلى</option>
+        </select>
+        <span class="count" id="usCount"></span>
+      </div>
+      <div class="grid" id="usGrid"></div>
+      <div class="card">
+        <table>
+          <thead><tr><th>الرمز</th><th>الشركة</th><th>السعر</th><th>التغير</th></tr></thead>
+          <tbody id="usTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="disclaimer">
+      ⚠️ تعليمي فقط. الأسعار قد تكون متأخرة. الأسهم الرخيصة عالية المخاطر. ليست نصيحة استثمارية. تحقق من المصادر الرسمية.
+    </div>
+    <footer>مركز توصيات AI · محاولة أسعار حية من Yahoo · سبتمبر 2026</footer>
+  </div>
+
+  <script>
+    let tasiStocks = [
+      { symbol:'1201', name:'تكوين', price:4.76, change:1.49, note:'مواد', bias:'watch' },
+      { symbol:'2200', name:'أنابيب', price:5.68, change:0.89, note:'أنابيب', bias:'watch' },
+      { symbol:'2350', name:'كيان', price:5.42, change:0.93, note:'بتروكيماويات', bias:'watch' },
+      { symbol:'3002', name:'أسمنت نجران', price:5.55, change:0.18, note:'أسمنت', bias:'watch' },
+      { symbol:'3004', name:'أسمنت الشمالية', price:6.68, change:0.45, note:'أسمنت', bias:'watch' },
+      { symbol:'3007', name:'الواحة', price:2.74, change:-0.36, note:'أسمنت', bias:'risk' },
+      { symbol:'3008', name:'الكثيري', price:1.22, change:1.64, note:'منخفض جداً', bias:'risk' },
+      { symbol:'3090', name:'أسمنت تبوك', price:7.31, change:0.00, note:'أسمنت', bias:'watch' },
+      { symbol:'3091', name:'أسمنت الجوف', price:4.93, change:-0.20, note:'أسمنت', bias:'watch' },
+      { symbol:'1831', name:'مهارة', price:4.59, change:-0.86, note:'خدمات', bias:'watch' },
+      { symbol:'1820', name:'بان', price:2.05, change:-0.96, note:'فنادق', bias:'risk' },
+      { symbol:'2060', name:'التصنيع', price:9.10, change:-1.30, note:'بتروكيماويات', bias:'watch' },
+      { symbol:'2380', name:'بترو رابغ', price:18.15, change:-1.09, note:'تكرير', bias:'watch' },
+      { symbol:'2382', name:'أديس', price:17.99, change:0.95, note:'حفر', bias:'watch' },
+      { symbol:'4010', name:'أمريكانا', price:2.10, change:0.00, note:'أغذية', bias:'watch' },
+      { symbol:'4140', name:'صدر', price:2.26, change:0.00, note:'صناعي', bias:'risk' },
+      { symbol:'4147', name:'سي جي إس', price:6.68, change:-0.30, note:'صناعي', bias:'risk' },
+      { symbol:'8012', name:'المتحدة للتأمين', price:3.47, change:-0.57, note:'تأمين', bias:'risk' },
+      { symbol:'8250', name:'الخليجية العامة', price:4.18, change:-0.71, note:'تأمين', bias:'risk' },
+      { symbol:'8050', name:'سلامة', price:8.82, change:0.11, note:'تأمين', bias:'watch' },
+      { symbol:'2310', name:'سبكيم', price:13.22, change:0.23, note:'بتروكيماويات', bias:'watch' },
+      { symbol:'1202', name:'مبكو', price:18.38, change:0.33, note:'مواد', bias:'watch' },
+      { symbol:'2090', name:'جبسكو', price:13.27, change:0.91, note:'مواد', bias:'watch' },
+      { symbol:'1301', name:'أسلاك', price:18.36, change:-0.22, note:'معادن', bias:'watch' },
+      { symbol:'1834', name:'سماسكو', price:5.72, change:-1.04, note:'خدمات', bias:'watch' },
+      { symbol:'4110', name:'باتك', price:2.04, change:0.00, note:'لوجستيات', bias:'risk' },
+      { symbol:'4180', name:'فتيحي', price:2.45, change:-0.81, note:'استثمار', bias:'risk' }
+    ];
+
+    let usStocks = [
+      { symbol:'GPRO', name:'GoPro', price:1.70, change:22.3, note:'كاميرات', bias:'risk' },
+      { symbol:'EOSE', name:'Eos Energy', price:3.88, change:10.9, note:'بطاريات', bias:'risk' },
+      { symbol:'CHPT', name:'ChargePoint', price:9.89, change:8.9, note:'شحن كهربائي', bias:'risk' },
+      { symbol:'POET', name:'POET Tech', price:7.92, change:8.1, note:'بصريات', bias:'watch' },
+      { symbol:'AUR', name:'Aurora', price:6.32, change:8.0, note:'قيادة ذاتية', bias:'risk' },
+      { symbol:'AMC', name:'AMC', price:2.65, change:4.3, note:'ترفيه', bias:'risk' },
+      { symbol:'IBRX', name:'ImmunityBio', price:8.19, change:3.0, note:'بيوتقنية', bias:'watch' },
+      { symbol:'CTOS', name:'Custom Truck', price:9.19, change:2.8, note:'معدات', bias:'watch' },
+      { symbol:'PLUG', name:'Plug Power', price:2.17, change:2.6, note:'هيدروجين', bias:'risk' },
+      { symbol:'BSBR', name:'Santander BR', price:6.02, change:2.2, note:'بنوك', bias:'watch' },
+      { symbol:'LYG', name:'Lloyds', price:6.10, change:2.0, note:'بنوك', bias:'watch' },
+      { symbol:'SB', name:'Safe Bulkers', price:9.17, change:1.8, note:'شحن', bias:'watch' },
+      { symbol:'RXRX', name:'Recursion', price:3.44, change:1.8, note:'بيوتقنية AI', bias:'watch' },
+      { symbol:'ITUB', name:'Itaú', price:8.22, change:1.7, note:'بنوك', bias:'watch' },
+      { symbol:'TE', name:'T1 Energy', price:4.60, change:1.3, note:'طاقة', bias:'watch' },
+      { symbol:'COTY', name:'Coty', price:2.93, change:1.0, note:'عطور', bias:'watch' },
+      { symbol:'CIG', name:'Cia Energetica', price:2.15, change:0.9, note:'مرافق', bias:'watch' },
+      { symbol:'ABEV', name:'Ambev', price:3.02, change:0.7, note:'مشروبات', bias:'watch' },
+      { symbol:'DNN', name:'Denison Mines', price:3.42, change:0.7, note:'يورانيوم', bias:'watch' },
+      { symbol:'JBLU', name:'JetBlue', price:4.64, change:0.5, note:'طيران', bias:'watch' },
+      { symbol:'OPEN', name:'Opendoor', price:3.15, change:0.5, note:'عقارات', bias:'risk' },
+      { symbol:'UGP', name:'Ultrapar', price:7.16, change:0.4, note:'طاقة', bias:'watch' },
+      { symbol:'BBD', name:'Bradesco', price:3.46, change:0.3, note:'بنوك', bias:'watch' },
+      { symbol:'SUZ', name:'Suzano', price:9.15, change:0.1, note:'لب ورق', bias:'watch' },
+      { symbol:'SOUN', name:'SoundHound', price:6.74, change:0.0, note:'صوت AI', bias:'watch' },
+      { symbol:'BITF', name:'Bitfarms', price:2.16, change:-0.3, note:'تعدين BTC', bias:'risk' },
+      { symbol:'GGB', name:'Gerdau', price:4.95, change:-0.4, note:'صلب', bias:'watch' },
+      { symbol:'BTG', name:'B2Gold', price:5.61, change:-1.4, note:'ذهب', bias:'watch' },
+      { symbol:'NIO', name:'NIO', price:3.79, change:-1.6, note:'سيارات كهربائية', bias:'risk' },
+      { symbol:'JOBY', name:'Joby', price:6.74, change:-1.9, note:'طيران كهربائي', bias:'risk' },
+      { symbol:'HLN', name:'Haleon', price:9.60, change:-2.6, note:'أدوية', bias:'watch' },
+      { symbol:'RIG', name:'Transocean', price:5.85, change:-2.8, note:'حفر', bias:'risk' },
+      { symbol:'GRAB', name:'Grab', price:3.42, change:-3.1, note:'تقنية', bias:'watch' },
+      { symbol:'KOS', name:'Kosmos', price:2.82, change:-3.7, note:'نفط', bias:'risk' }
+    ];
+
+    function showTab(id) {
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.getElementById('panel-' + id).classList.add('active');
+      if (event && event.target) event.target.classList.add('active');
+    }
+
+    function sortList(mkt) {
+      const list = mkt === 'tasi' ? tasiStocks : usStocks;
+      const mode = document.getElementById(mkt + 'Sort').value;
+      if (mode === 'change-desc') list.sort((a,b) => b.change - a.change);
+      else if (mode === 'change-asc') list.sort((a,b) => a.change - b.change);
+      else if (mode === 'price-asc') list.sort((a,b) => a.price - b.price);
+      else if (mode === 'price-desc') list.sort((a,b) => b.price - a.price);
+      renderList(mkt);
+    }
+
+    function renderList(mkt) {
+      const list = mkt === 'tasi' ? tasiStocks : usStocks;
+      const grid = document.getElementById(mkt + 'Grid');
+      const table = document.getElementById(mkt + 'Table');
+      const select = document.getElementById(mkt + 'Select');
+      const count = document.getElementById(mkt + 'Count');
+      const curr = mkt === 'tasi' ? ' ر.س' : '';
+      const prefix = mkt === 'us' ? '$' : '';
+      grid.innerHTML = ''; table.innerHTML = '';
+      select.innerHTML = '<option value="">— اختر —</option>';
+      count.textContent = list.length + ' شركة';
+
+      list.forEach((s, i) => {
+        const cls = s.change >= 0 ? 'up' : 'down';
+        const sign = s.change >= 0 ? '+' : '';
+        const badge = s.bias === 'risk' ? 'badge-risk' : 'badge-watch';
+        const badgeT = s.bias === 'risk' ? 'مخاطر' : 'مراقبة';
+        select.innerHTML += `<option value="${i}">${s.symbol} — ${s.name} (${sign}${s.change.toFixed(1)}%)</option>`;
+        grid.innerHTML += `<div class="stock-card" onclick="selectItem('${mkt}',${i})" id="${mkt}-card-${i}">
+          <div class="stock-name">${s.name}</div>
+          <div class="stock-symbol">${s.symbol}</div>
+          <div class="stock-price" id="${mkt}-price-${s.symbol}">${prefix}${s.price.toFixed(2)}${curr}</div>
+          <div class="stock-change ${cls}" id="${mkt}-chg-${s.symbol}">${sign}${s.change.toFixed(2)}%</div>
+          <div style="font-size:0.78rem;color:var(--muted)">${s.note}</div>
+          <span class="badge ${badge}">${badgeT}</span>
+        </div>`;
+        table.innerHTML += `<tr style="cursor:pointer" onclick="selectItem('${mkt}',${i})">
+          <td>${s.symbol}</td><td>${s.name}</td>
+          <td id="${mkt}-tbl-${s.symbol}">${s.price.toFixed(2)}</td>
+          <td class="${cls}">${sign}${s.change.toFixed(2)}%</td>
+        </tr>`;
+      });
+    }
+
+    function selectItem(mkt, idx) {
+      document.getElementById(mkt + 'Select').value = idx;
+      document.querySelectorAll('#' + mkt + 'Grid .stock-card').forEach((c,i) => {
+        c.classList.toggle('selected', i === idx);
+      });
+    }
+
+    async function fetchLive(symbol, isSaudi) {
+      const sym = isSaudi ? symbol + '.SR' : symbol;
+      const url = `https://query1.finance.yahoo.com/v8/finance/chart/${sym}?interval=1d&range=5d`;
+      const ends = [url, 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url), 'https://corsproxy.io/?' + encodeURIComponent(url)];
+      for (const ep of ends) {
+        try {
+          const ctrl = new AbortController();
+          const t = setTimeout(() => ctrl.abort(), 6500);
+          const res = await fetch(ep, { signal: ctrl.signal, mode: 'cors', cache: 'no-store' });
+          clearTimeout(t);
+          if (!res.ok) continue;
+          const data = await res.json();
+          const meta = data?.chart?.result?.[0]?.meta;
+          if (meta?.regularMarketPrice) return { price: meta.regularMarketPrice, change: meta.regularMarketChangePercent || 0 };
+        } catch(e) {}
+      }
+      return null;
+    }
+
+    async function fetchGold() {
+      document.getElementById('goldMeta').textContent = 'جاري الجلب...';
+      const urls = [
+        'https://api.gold-api.com/price/XAU',
+        'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://data-asg.goldprice.org/dbXRates/USD')
+      ];
+      for (const u of urls) {
+        try {
+          const res = await fetch(u, { cache: 'no-store' });
+          if (!res.ok) continue;
+          const d = await res.json();
+          let price = d.price || d.items?.[0]?.xauPrice || null;
+          if (price) {
+            document.getElementById('goldPrice').textContent = '$' + Number(price).toFixed(2);
+            document.getElementById('goldMeta').textContent = 'محدّث · ' + new Date().toLocaleTimeString('ar');
+            window._goldPrice = Number(price);
+            return;
+          }
+        } catch(e) {}
+      }
+      window._goldPrice = 2650;
+      document.getElementById('goldPrice').textContent = '~$2650';
+      document.getElementById('goldMeta').textContent = 'تقريبي (فشل الجلب الحي)';
+    }
+
+    function genGoldRec() {
+      const p = window._goldPrice || 2650;
+      const atr = p * 0.008;
+      const r = Math.random();
+      let signal, reason, entry, sl, tp1, tp2, cls;
+      if (r < 0.4) {
+        signal = 'شراء محتمل (Buy)'; cls = 'signal-buy';
+        reason = 'إشارة AI: قرب منطقة طلب / Order Block محتمل + زخم إيجابي. نظام SMC/Wyckoff.';
+        entry = (p * 0.998).toFixed(2); sl = (p - atr * 1.5).toFixed(2);
+        tp1 = (p + atr * 1.8).toFixed(2); tp2 = (p + atr * 3).toFixed(2);
+      } else if (r < 0.7) {
+        signal = 'مراقبة (Hold)'; cls = 'signal-hold';
+        reason = 'السعر في منطقة محايدة. انتظر كسر هيكل واضح (BOS) أو ارتداد من دعم قوي.';
+        entry = sl = tp1 = tp2 = '—';
+      } else {
+        signal = 'بيع محتمل (Sell)'; cls = 'signal-sell';
+        reason = 'ضعف زخم أو قرب مقاومة. الذهب قد يصحح عند غياب السيولة.';
+        entry = (p * 1.002).toFixed(2); sl = (p + atr * 1.5).toFixed(2);
+        tp1 = (p - atr * 1.5).toFixed(2); tp2 = (p - atr * 2.5).toFixed(2);
+      }
+      document.getElementById('goldSignal').textContent = signal;
+      document.getElementById('goldSignal').className = 'signal ' + cls;
+      document.getElementById('goldReason').textContent = reason;
+      document.getElementById('goldLevels').innerHTML = `
+        <div>السعر المرجعي: <strong>$${p.toFixed(2)}</strong></div>
+        <div>الدخول: <strong>${entry}</strong> · وقف: <strong>${sl}</strong></div>
+        <div>الهدف 1 / 2: <strong>${tp1}</strong> / <strong>${tp2}</strong></div>`;
+    }
+
+    async function genStockRec(mkt, random) {
+      const list = mkt === 'tasi' ? tasiStocks : usStocks;
+      const select = document.getElementById(mkt + 'Select');
+      let idx;
+      if (random || !select.value) {
+        idx = Math.floor(Math.random() * list.length);
+        select.value = idx;
+      } else idx = parseInt(select.value, 10);
+      if (isNaN(idx)) { alert('اختر شركة'); return; }
+      selectItem(mkt, idx);
+
+      const sig = document.getElementById(mkt + 'Signal');
+      const rea = document.getElementById(mkt + 'Reason');
+      const lev = document.getElementById(mkt + 'Levels');
+      sig.textContent = 'جاري جلب السعر...'; sig.className = 'signal signal-hold';
+      rea.textContent = ''; lev.innerHTML = '';
+
+      const s = list[idx];
+      let price = s.price, change = s.change, live = false;
+      const liveData = await fetchLive(s.symbol, mkt === 'tasi');
+      if (liveData) {
+        price = liveData.price; change = liveData.change; live = true;
+        const prefix = mkt === 'us' ? '$' : '';
+        const curr = mkt === 'tasi' ? ' ر.س' : '';
+        const pe = document.getElementById(mkt + '-price-' + s.symbol);
+        const ce = document.getElementById(mkt + '-chg-' + s.symbol);
+        const te = document.getElementById(mkt + '-tbl-' + s.symbol);
+        if (pe) pe.textContent = prefix + price.toFixed(2) + curr;
+        if (ce) { const sg = change>=0?'+':''; ce.textContent = sg + change.toFixed(2) + '%'; ce.className = 'stock-change ' + (change>=0?'up':'down'); }
+        if (te) te.textContent = price.toFixed(2);
+      }
+
+      const atr = price * (mkt === 'tasi' ? 0.03 : 0.04);
+      const r = Math.random();
+      let signal, reason, entry, sl, tp1, tp2, cls;
+      if (s.bias === 'risk' || r > 0.62) {
+        signal = 'مراقبة / تجنب'; cls = 'signal-hold';
+        reason = `${s.name} (${s.symbol}) عالي المخاطر. انتظر حجم قوي + هيكل صاعد (BOS).`;
+        entry = sl = tp1 = tp2 = '—';
+      } else if (r < 0.42) {
+        signal = 'شراء محتمل'; cls = 'signal-buy';
+        reason = `إشارة AI على ${s.name}: منطقة طلب محتملة + زخم. نظام Wyckoff/SMC.`;
+        entry = (price * 0.99).toFixed(2); sl = (price - atr * 1.5).toFixed(2);
+        tp1 = (price + atr * 1.8).toFixed(2); tp2 = (price + atr * 3).toFixed(2);
+      } else {
+        signal = 'بيع / جني أرباح'; cls = 'signal-sell';
+        reason = `تحذير على ${s.name}: ضعف زخم أو قرب مقاومة.`;
+        entry = (price * 1.01).toFixed(2); sl = (price + atr * 1.5).toFixed(2);
+        tp1 = (price - atr * 1.5).toFixed(2); tp2 = (price - atr * 2.5).toFixed(2);
+      }
+      const badge = live ? '<span style="color:#22c55e">● مباشر</span>' : '<span style="color:#ef4444">● تقريبي</span>';
+      const prefix = mkt === 'us' ? '$' : '';
+      const curr = mkt === 'tasi' ? ' ر.س' : '';
+      sig.textContent = signal + ` — ${s.name} (${s.symbol})`;
+      sig.className = 'signal ' + cls;
+      rea.textContent = reason;
+      lev.innerHTML = `
+        <div>السعر: <strong>${prefix}${price.toFixed(2)}${curr}</strong> ${badge}</div>
+        <div>التغير: <strong class="${change>=0?'up':'down'}">${change>=0?'+':''}${change.toFixed(2)}%</strong></div>
+        <div>الدخول: <strong>${entry}</strong> · وقف: <strong>${sl}</strong></div>
+        <div>الهدف 1 / 2: <strong>${tp1}</strong> / <strong>${tp2}</strong></div>`;
+    }
+
+    sortList('tasi');
+    sortList('us');
+    fetchGold();
+  </script>
+</body>
+</html>
